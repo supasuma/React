@@ -3,17 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 class Square extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: null,
-    };
-  }
-
   render() {
     return (
-      <button className="square" onClick={() => this.setState({value: 'X'})}>
-        { this.state.value }
+      //onClick prop on the built-in DOM <button> component tells React to set up a click event listener.
+      //When the button is clicked, React will call the onClick event handler defined in Square’s render() method.
+      //This event handler calls this.props.onClick(). Square’s props were specified by the Board.
+      //Board passed onClick={() => this.handleClick(i)} to Square, so, when called, it runs this.handleClick(i)
+      //on the Board.
+      <button className="square" onClick={() => this.props.onClick()}>
+        {this.props.value}
       </button>
     );
   }
@@ -23,12 +21,27 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
     this.state={
-      value: Array(9).fill(null)
+      squares: Array(9).fill(null)
     };
+  }
+  //Note how whenever Board’s state changes, the Square components rerender automatically.
+
+  handleClick(i) {
+    //.slice() to copy the squares array instead of mutating the existing array (and removes from array)
+    const squares = this.state.squares.slice();
+    squares[i] = 'X';
+    this.setState({squares: squares});
   }
 
   renderSquare(i) {
-    return <Square value={this.state.squares[i]} />;
+    return (
+      <Square
+        //Square no longer keeps its own state; it receives its value from its parent Board
+        value={this.state.squares[i]}
+        //and informs its parent when it’s clicked.
+        onClick={() => this.handleClick(i)}
+      />
+    );
   }
 
   render() {
